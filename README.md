@@ -20,3 +20,17 @@ SQLite使用命名卷，容器重启后保留历史。要重建演示可在Compo
 源码在 `app/`，样例在 `sample_data/`，测试在 `tests/`；定义见 `docs/DATA-DICTIONARY.md`，模块和边界测试对应关系见 `docs/DEPTH.md`。输入上限2MB，属于离线复核工具。
 
 采信页支持上传或粘贴CSV。完整源字节与参数随批次持久化，跨页通过run_id读取同一结果。`POST /api/runs/{run_id}/rerun` 读取该批不可变输入快照重新计算，规则未变时批号不变。切换另一示例则创建或复用另一批次。
+
+## 归因与结算
+
+限发归因按 `attribution-2026.11-a` 口径结算：同一片段的电网支撑与调度限电按瀑布分摊，可申报
+电量只含调度限额造成的增量；设备故障单列；证据不足留待查，不填 0。页面显示可申报电量、电网
+支撑与待查片段，并保持事件、基线、每段归因与总量相互解释。
+
+依据更正入口 `POST /api/runs/{run_id}/basis`（body `attribution`），只重算受影响事件；同一依据
+内容哈希相同则复用、不新增版本。版本列表 `GET /api/runs/{run_id}/basis`，切回
+`POST /api/runs/{run_id}/basis/{basis_sha}/activate`。切回或提交失败时整体回滚，当前结果保持旧版，
+原始遥测/隔离/计数不被删除。样例 `sample_data/context.json` 的 `attribution.events` 给出事件依据。
+
+完整对照批：INV-A 30 分钟损失 20kWh，其中电网支撑 10kWh、调度可申报 10kWh；INV-B 损失
+6.6667kWh 全额可申报。合计可申报 16.6667kWh、电网支撑 10.0000kWh、待查 0。

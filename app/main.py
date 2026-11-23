@@ -33,6 +33,18 @@ def rerun(run_id:str):
     if 'input_snapshot' not in previous:
         raise BusinessError('INPUT_SNAPSHOT_MISSING','旧批缺少源快照，请重新导入')
     return store.save(DB_PATH,evaluate({'dataset':previous['source']},snapshot=previous['input_snapshot']))
+@app.post('/api/runs/{run_id}/basis')
+def submit_basis(run_id:str,payload:dict=Body(...)):
+    basis=payload.get('attribution',payload)
+    from app.attribution import validate_basis
+    return store.submit_basis(DB_PATH,run_id,validate_basis(basis))
+@app.get('/api/runs/{run_id}/basis')
+def basis_history(run_id:str):
+    store.get(DB_PATH,run_id)
+    return store.basis_history(DB_PATH,run_id)
+@app.post('/api/runs/{run_id}/basis/{basis_sha}/activate')
+def activate_basis(run_id:str,basis_sha:str):
+    return store.activate_basis(DB_PATH,run_id,basis_sha)
 @app.get('/api/runs')
 def runs():
     return store.history(DB_PATH)

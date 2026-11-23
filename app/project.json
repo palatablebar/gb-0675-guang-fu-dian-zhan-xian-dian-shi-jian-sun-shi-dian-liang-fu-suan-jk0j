@@ -67,6 +67,16 @@
     "unknown_seconds": "未定 s",
     "line": "原始行",
     "_line": "原始行",
-    "detail": "原因"
+    "detail": "原因",
+    "claimable_kwh": "可申报 kWh",
+    "grid_support_kwh": "电网支撑 kWh",
+    "fault_kwh": "设备故障 kWh",
+    "pending_kwh": "待查 kWh",
+    "reason": "归因原因",
+    "reason_code": "原因码",
+    "basis_ids": "归因依据",
+    "status_note": "结算状态",
+    "known_loss_kwh": "少发合计 kWh",
+    "segments": "片段数"
   }
 }

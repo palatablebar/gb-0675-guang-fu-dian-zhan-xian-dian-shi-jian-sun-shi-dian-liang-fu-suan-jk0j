@@ -42,5 +42,26 @@
   },
   "cadence_seconds": 600,
   "irradiance_bin": "100",
-  "min_references": 2
+  "min_references": 2,
+  "attribution": {
+    "ruleset": "attribution-2026.11-a",
+    "events": {
+      "EA1": {
+        "cause": "GRID_SUPPORT",
+        "active_cap_kw": "80",
+        "basis_id": "LVRT-A-01"
+      },
+      "EA2": {
+        "cause": "DISPATCH",
+        "limit_kw": "60",
+        "basis_id": "ORD-A-01"
+      },
+      "EB1": {
+        "cause": "DISPATCH",
+        "limit_kw": "30",
+        "basis_id": "ORD-B-01"
+      }
+    },
+    "faults": []
+  }
 }

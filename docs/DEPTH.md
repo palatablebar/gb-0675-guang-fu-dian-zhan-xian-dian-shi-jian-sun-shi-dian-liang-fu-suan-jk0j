@@ -10,9 +10,10 @@
 | M2 设备映射 | 执行并复核设备映射 | `POST /api/devices` | `app/modules/devices/rules.py` | `tests/test_devices.py` |
 | M3 事件切片 | 执行并复核事件切片 | `POST /api/slicing` | `app/modules/slicing/rules.py` | `tests/test_slicing.py` |
 | M4 基线拟合 | 执行并复核基线拟合 | `POST /api/baseline` | `app/modules/baseline/rules.py` | `tests/test_baseline.py` |
-| M5 损失核算 | 执行并复核损失核算 | `POST /api/loss` | `app/modules/loss/rules.py` | `tests/test_loss.py` |
+| M5 损失核算 | 执行并复核损失核算与归因结算 | `POST /api/loss` | `app/modules/loss/rules.py`、`app/attribution.py` | `tests/test_loss.py`、`tests/test_attribution.py` |
 | M6 能量对账 | 执行并复核能量对账 | `POST /api/reconcile` | `app/modules/reconcile/rules.py` | `tests/test_reconcile.py` |
 | M7 运行归档 | 执行并复核运行归档 | `POST /api/archive` | `app/modules/archive/rules.py` | `tests/test_archive.py` |
+| M8 依据版本 | 更正/切换归因依据 | `POST /api/runs/{id}/basis`、`.../basis/{sha}/activate` | `app/store.py` | `tests/test_settlement_store.py` |
 
 ## 陷阱登记
 
@@ -28,6 +29,11 @@
 | TRAP-15 | 功率单位 | 静默错算或证据丢失 | 以可复核规则显式处理 | `app/modules/devices/rules.py` | `tests/test_devices.py::test_megawatt_conversion` |
 | TRAP-06 | 全角千分位 | 静默错算或证据丢失 | 以可复核规则显式处理 | `app/modules/devices/rules.py` | `tests/test_devices.py::test_fullwidth_number` |
 | TRAP-11 | UTC归一 | 静默错算或证据丢失 | 以可复核规则显式处理 | `app/modules/devices/rules.py` | `tests/test_devices.py::test_time_equivalence` |
+| TRAP-24 | 电网支撑与调度限电同段 | 全部按限电申报导致补偿高估 | 瀑布分摊，只把调度限额增量计入可申报，其余分别归电网支撑/故障/待查 | `app/attribution.py` | `tests/test_attribution.py::test_grid_and_dispatch_split` |
+| TRAP-25 | 依据不足 | 填 0 或忽略导致漏报/高估 | 留待查，不进入可申报，分项之和仍等于损失 | `app/attribution.py` | `tests/test_attribution.py::test_missing_basis_is_pending_not_zero` |
+| TRAP-26 | 依据更正全量重算 | 未受影响事件被改写 | 只重算受影响事件片段，其余逐字段保留 | `app/store.py` | `tests/test_settlement_store.py::test_correction_recomputes_only_affected` |
+| TRAP-27 | 重试同一依据 | 重复新增版本或结果 | 以依据内容哈希幂等复用 | `app/store.py` | `tests/test_settlement_store.py::test_retry_same_basis_no_new_version` |
+| TRAP-28 | 切换依据失败 | 丢掉旧版或删原始记录 | 事务回滚，指针保持旧版，原始记录不变 | `app/store.py` | `tests/test_settlement_store.py::test_failed_switch_restores_old` |
 | TRAP-23 | 限电区间并集 | 静默错算或证据丢失 | 以可复核规则显式处理 | `app/modules/slicing/rules.py` | `tests/test_slicing.py::test_overlapping_real` |
 
 ## 对账规则
